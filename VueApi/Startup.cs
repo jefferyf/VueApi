@@ -13,6 +13,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.EntityFrameworkCore;
+using VueApi.Services;
 
 namespace VueApi
 {
@@ -42,12 +44,14 @@ namespace VueApi
                     };
                 });
 
+            services.AddDbContext<BooksDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("BookContext")));
+
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
             services.AddCors();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, BooksDbContext booksDbContext)
         {
             if (env.IsDevelopment())
             {
@@ -58,6 +62,8 @@ namespace VueApi
                 app.UseHsts();
                 app.UseHttpsRedirection();
             }
+
+            booksDbContext.CreateSeedData();
 
             app.UseAuthentication();
             app.UseCors(builder => builder
