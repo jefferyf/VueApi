@@ -25,9 +25,20 @@ namespace VueApi.Controllers
 
         // GET: api/Books
         [HttpGet]
-        public IEnumerable<Book> GetBooks()
+        public ActionResult<string> GetBooks(int page = 1, int per_page = 5)
         {
-            return _context.Books;
+            // Basic pagination...
+            int skip = (page - 1) * per_page;
+
+            int total = _context.Books.Count();
+
+            var books = _context.Books
+                .OrderBy(b => b.Id)
+                .Skip(skip)
+                .Take(per_page)
+                .ToList();
+
+            return Ok(new {total = total, books = books });
         }
 
         // GET: api/Books/5
