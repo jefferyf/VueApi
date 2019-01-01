@@ -18,12 +18,6 @@ namespace VueApi.Controllers
     {
         private readonly BooksDbContext _context;
 
-        public class Payload
-        {
-            public int page { get; set; } = 1;
-            public int per_page { get; set; } = 5;
-        }
-
         public BooksController(BooksDbContext context)
         {
             _context = context;
@@ -31,17 +25,17 @@ namespace VueApi.Controllers
 
         // GET: api/Books
         [HttpGet]
-        public ActionResult<string> GetBooks([FromBody] Payload payload)
+        public ActionResult<string> GetBooks(int page = 1, int per_page = 5)
         {
             // Basic pagination...
-            int skip = (payload.page - 1) * payload.per_page;
+            int skip = (page - 1) * per_page;
 
             int total = _context.Books.Count();
 
             var books = _context.Books
                 .OrderBy(b => b.Id)
                 .Skip(skip)
-                .Take(payload.per_page)
+                .Take(per_page)
                 .ToList();
 
             return Ok(new {total = total, books = books });
