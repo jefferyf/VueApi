@@ -6,8 +6,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
-using VueApi.Entities;
+using VueApi.Models;
 using VueApi.Services;
+using VueApi.Repositories;
 
 namespace VueApi.Controllers
 {
@@ -17,26 +18,21 @@ namespace VueApi.Controllers
     public class BooksController : ControllerBase
     {
         private readonly BooksDbContext _context;
+        private readonly BookRepository _bookRepository;
 
-        public BooksController(BooksDbContext context)
+        public BooksController(BooksDbContext context, BookRepository bookRepository)
         {
             _context = context;
+            _bookRepository = bookRepository;
         }
 
         // GET: api/Books
         [HttpGet]
         public ActionResult<string> GetBooks(int page = 1, int per_page = 5)
         {
-            // Basic pagination...
-            int skip = (page - 1) * per_page;
-
             int total = _context.Books.Count();
 
-            var books = _context.Books
-                .OrderBy(b => b.Id)
-                .Skip(skip)
-                .Take(per_page)
-                .ToList();
+            var books = _bookRepository.GetBooks(page, per_page);
 
             return Ok(new {total = total, books = books });
         }

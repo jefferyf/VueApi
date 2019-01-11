@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using VueApi.Entities;
+using VueApi.Models;
 
 namespace VueApi.Services
 {
