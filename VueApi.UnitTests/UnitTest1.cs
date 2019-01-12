@@ -10,6 +10,7 @@ namespace Tests
         }
 
         [Test]
+        [Ignore("Auto-Generated Example test")]
         public void Test1()
         {
             Assert.Pass();

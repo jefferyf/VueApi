@@ -39,5 +39,15 @@ namespace VueApi.Repositories
 
             return book;
         }
+
+        public int GetTotalBookCount()
+        {
+            return _context.Books.Count();
+        }
+
+        public bool BookExists(int id)
+        {
+            return _context.Books.Any(e => e.Id == id);
+        }
     }
 }

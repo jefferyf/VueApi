@@ -30,7 +30,7 @@ namespace VueApi.Controllers
         [HttpGet]
         public ActionResult<string> GetBooks(int page = 1, int per_page = 5)
         {
-            int total = _context.Books.Count();
+            int total = _bookRepository.GetTotalBookCount();
 
             var books = _bookRepository.GetBooks(page, per_page);
 
