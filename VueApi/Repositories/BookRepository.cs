@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -15,6 +16,11 @@ namespace VueApi.Repositories
         public BookRepository(BooksDbContext context)
         {
             _context = context;
+        }
+
+        public async Task<Book> FindBookAsync(int bookId)
+        {
+            return await _context.Books.FindAsync(bookId);
         }
 
         public IEnumerable<Book> GetBooks(int page=1, int per_page=5)
@@ -48,6 +54,26 @@ namespace VueApi.Repositories
         public bool BookExists(int id)
         {
             return _context.Books.Any(e => e.Id == id);
+        }
+
+        public void ModifyBookState(Book book)
+        {
+            _context.Entry(book).State = EntityState.Modified;
+        }
+
+        public async Task SaveChangesAsync()
+        {
+            await _context.SaveChangesAsync();
+        }
+
+        public void AddBookToContext(Book book)
+        {
+            _context.Books.Add(book);
+        }
+
+        public void RemoveBookFromContext(Book book)
+        {
+            _context.Books.Remove(book);
         }
     }
 }

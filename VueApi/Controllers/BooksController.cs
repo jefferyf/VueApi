@@ -7,8 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using VueApi.Models;
-using VueApi.Services;
 using VueApi.Repositories;
+using VueApi.Repositories.Interfaces;
 
 namespace VueApi.Controllers
 {
@@ -17,12 +17,10 @@ namespace VueApi.Controllers
     [Authorize]
     public class BooksController : ControllerBase
     {
-        private readonly BooksDbContext _context;
-        private readonly BookRepository _bookRepository;
+        private readonly IBookRepository _bookRepository;
 
-        public BooksController(BooksDbContext context, BookRepository bookRepository)
+        public BooksController(IBookRepository bookRepository)
         {
-            _context = context;
             _bookRepository = bookRepository;
         }
 
@@ -34,7 +32,7 @@ namespace VueApi.Controllers
 
             var books = _bookRepository.GetBooks(page, per_page);
 
-            return Ok(new {total = total, books = books });
+            return Ok(new { total = total, books = books });
         }
 
         // GET: api/Books/5
@@ -46,7 +44,7 @@ namespace VueApi.Controllers
                 return BadRequest(ModelState);
             }
 
-            var book = await _context.Books.FindAsync(id);
+            var book = await _bookRepository.FindBookAsync(id);
 
             if (book == null)
             {
@@ -70,11 +68,11 @@ namespace VueApi.Controllers
                 return BadRequest();
             }
 
-            _context.Entry(book).State = EntityState.Modified;
+            _bookRepository.ModifyBookState(book);
 
             try
             {
-                await _context.SaveChangesAsync();
+                await _bookRepository.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -100,8 +98,8 @@ namespace VueApi.Controllers
                 return BadRequest(ModelState);
             }
 
-            _context.Books.Add(book);
-            await _context.SaveChangesAsync();
+            _bookRepository.AddBookToContext(book);
+            await _bookRepository.SaveChangesAsync();
 
             return CreatedAtAction("GetBook", new { id = book.Id }, book);
         }
@@ -115,21 +113,22 @@ namespace VueApi.Controllers
                 return BadRequest(ModelState);
             }
 
-            var book = await _context.Books.FindAsync(id);
+            var book = await _bookRepository.FindBookAsync(id);
+
             if (book == null)
             {
                 return NotFound();
             }
 
-            _context.Books.Remove(book);
-            await _context.SaveChangesAsync();
+            _bookRepository.RemoveBookFromContext(book);
+            await _bookRepository.SaveChangesAsync();
 
             return Ok(book);
         }
 
         private bool BookExists(int id)
         {
-            return _context.Books.Any(e => e.Id == id);
+            return _bookRepository.BookExists(id);
         }
     }
 }

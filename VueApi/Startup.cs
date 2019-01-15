@@ -15,6 +15,8 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.EntityFrameworkCore;
 using VueApi.Services;
+using VueApi.Repositories;
+using VueApi.Repositories.Interfaces;
 
 namespace VueApi
 {
@@ -43,6 +45,8 @@ namespace VueApi
                         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Jwt:Key"]))
                     };
                 });
+
+            services.AddTransient<IBookRepository, BookRepository>();
 
             services.AddDbContext<BooksDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("BookContext")));
 
