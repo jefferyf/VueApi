@@ -18,18 +18,34 @@ namespace VueApi.UnitTests.Controllers
         private BooksController _booksController;
         private Mock<IBookRepository> _bookRepository;
 
+        [SetUp]
+        public void SetUp()
+        {
+            _bookRepository = new Mock<IBookRepository>();
+            _booksController = new BooksController(_bookRepository.Object);
+        }
 
         [Test]
         public void BookExists_BookIsFound_ReturnsTrue()
         {
-            var booksRepo = new Mock<IBookRepository>();
-            booksRepo.Setup(br => br.FindBookAsync(1)).Returns(Task.FromResult( new Book { Name = "book", Year = 2019 }));
-            var booksController = new BooksController(booksRepo.Object);
-
-            var result = booksController.GetBook(1);
+            _bookRepository.Setup(br => br.FindBookAsync(1))
+                .Returns(Task.FromResult( new Book { Name = "book", Year = 2019 }));
+            
+            var result = _booksController.GetBook(1);
 
             Assert.IsInstanceOf<OkObjectResult>(result.Result);
-
         }
+
+        [Test]
+        public void BookExists_BookIsNotFound_ReturnsFalse()
+        {
+            _bookRepository.Setup(br => br.FindBookAsync(1))
+                .Returns(Task.FromResult<Book>(null));
+
+            var result = _booksController.GetBook(1);
+            
+            Assert.IsInstanceOf<NotFoundResult>(result.Result);
+        }
+            
     }
 }
